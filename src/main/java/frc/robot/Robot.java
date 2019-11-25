@@ -7,11 +7,12 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import frc.robot.subsystems.Drivetrain;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -21,42 +22,54 @@ import edu.wpi.first.wpilibj.TimedRobot;
  * project.
  */
 public class Robot extends TimedRobot {
-  /**
-   * This function is run when the robot is first started up and should be used
-   * for any initialization code.
-   */
+    Joystick joystick = new Joystick(0);
 
-  TalonSRX motor = new TalonSRX(1);
-  Joystick joystick = new Joystick(0);
+    Drivetrain drivetrain;
 
-  @Override
-  public void robotInit() {
-  }
+    @Override
+    public void robotInit() {
+        inititalizeDrivetrain(3, 4, 1, 2);
+    }
 
-  @Override
-  public void autonomousInit() {
-  }
+    @Override
+    public void autonomousInit() {
+    }
 
-  @Override
-  public void autonomousPeriodic() {
-  }
+    @Override
+    public void autonomousPeriodic() {
+    }
 
-  @Override
-  public void teleopInit() {
-  }
+    @Override
+    public void teleopInit() {
+    }
 
-  @Override
-  public void teleopPeriodic() {
-    double motorSpeed = joystick.getZ();
-    motor.set(ControlMode.PercentOutput, motorSpeed - 0.1417);
-  }
+    @Override
+    public void teleopPeriodic() {
+        drivetrain.arcadeDrive(-joystick.getY(), joystick.getX());
+    }
 
-  @Override
-  public void testInit() {
-  }
+    @Override
+    public void testInit() {
+    }
 
-  @Override
-  public void testPeriodic() {
-  }
+    @Override
+    public void testPeriodic() {
+    }
 
+    public void inititalizeDrivetrain(int frontLeft, int backLeft, int frontRight, int backRight) {
+        CANSparkMax frontLeftMotor = new CANSparkMax(frontLeft, MotorType.kBrushless);
+        CANSparkMax backLeftMotor = new CANSparkMax(backLeft, MotorType.kBrushless);
+        CANSparkMax frontRightMotor = new CANSparkMax(frontRight, MotorType.kBrushless);
+        CANSparkMax backRightMotor = new CANSparkMax(backRight, MotorType.kBrushless);
+
+        REVConfig.configureNeo(frontLeftMotor);
+        REVConfig.configureNeo(backLeftMotor);
+        REVConfig.configureNeo(frontRightMotor);
+        REVConfig.configureNeo(backRightMotor);
+
+        backLeftMotor.follow(frontLeftMotor);
+        backRightMotor.follow(frontRightMotor);
+
+        drivetrain = new Drivetrain(frontLeftMotor, frontRightMotor);
+    }
 }
