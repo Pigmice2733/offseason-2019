@@ -1,4 +1,4 @@
-package frc.robot;
+package com.pigmice.frc.robot;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
