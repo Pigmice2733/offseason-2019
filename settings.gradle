@@ -23,3 +23,6 @@ pluginManagement {
         }
     }
 }
+
+rootProject.name = 'offseason-2019'
+include 'robolib'
