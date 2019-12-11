@@ -7,11 +7,14 @@
 
 package com.pigmice.frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
@@ -29,23 +32,34 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         inititalizeDrivetrain(3, 4, 1, 2);
+
+        CameraServer server = CameraServer.getInstance();
+        server.startAutomaticCapture("Driver Cam", 0);
+
+        Vision.start();
     }
 
     @Override
     public void autonomousInit() {
+        drivetrain.resetSensors();
     }
 
     @Override
     public void autonomousPeriodic() {
-    }
 
+    }
     @Override
     public void teleopInit() {
+        drivetrain.stop();
     }
 
     @Override
     public void teleopPeriodic() {
-        drivetrain.arcadeDrive(-joystick.getY(), joystick.getX());
+        if(joystick.getRawButton(5)) {
+            drivetrain.arcadeDrive(-joystick.getRawAxis(1), joystick.getRawAxis(4));
+        } else {
+            drivetrain.arcadeDrive(-0.1 * joystick.getRawAxis(1), 0.1 * joystick.getRawAxis(4));
+        }
     }
 
     @Override
@@ -70,6 +84,6 @@ public class Robot extends TimedRobot {
         backLeftMotor.follow(frontLeftMotor);
         backRightMotor.follow(frontRightMotor);
 
-        drivetrain = new Drivetrain(frontLeftMotor, frontRightMotor);
+        drivetrain = new Drivetrain(frontLeftMotor, frontRightMotor, new AHRS(Port.kMXP));
     }
 }

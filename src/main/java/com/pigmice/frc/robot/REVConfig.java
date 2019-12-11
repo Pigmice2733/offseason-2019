@@ -10,7 +10,7 @@ public class REVConfig {
 
         neo.setMotorType(MotorType.kBrushless);
         neo.setIdleMode(IdleMode.kBrake);
-        neo.setOpenLoopRampRate(0.12);
+        neo.setOpenLoopRampRate(1.0);
 
         neo.setSmartCurrentLimit(20, 2, 25);
         neo.setSecondaryCurrentLimit(20, 2);
