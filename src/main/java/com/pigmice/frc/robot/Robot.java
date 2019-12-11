@@ -29,6 +29,9 @@ public class Robot extends TimedRobot {
 
     Drivetrain drivetrain;
 
+    TalonSRX leftShooter = new TalonSRX(7);
+    TalonSRX rightShooter = new TalonSRX(11);
+
     @Override
     public void robotInit() {
         inititalizeDrivetrain(3, 4, 1, 2);
@@ -55,6 +58,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+
+        double shooterVoltage = 0.5;
+        leftShooter.set();
+        rightShooter.set();
+
         if(joystick.getRawButton(5)) {
             drivetrain.arcadeDrive(-joystick.getRawAxis(1), joystick.getRawAxis(4));
         } else {
