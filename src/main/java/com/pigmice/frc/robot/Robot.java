@@ -7,8 +7,10 @@
 
 package com.pigmice.frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Shooter;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -28,13 +30,12 @@ public class Robot extends TimedRobot {
     Joystick joystick = new Joystick(0);
 
     Drivetrain drivetrain;
-
-    TalonSRX leftShooter = new TalonSRX(7);
-    TalonSRX rightShooter = new TalonSRX(11);
+    Shooter shooter;
 
     @Override
     public void robotInit() {
         inititalizeDrivetrain(3, 4, 1, 2);
+        initializeShooter();
 
         CameraServer server = CameraServer.getInstance();
         server.startAutomaticCapture("Driver Cam", 0);
@@ -58,10 +59,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-
-        double shooterVoltage = 0.5;
-        leftShooter.set();
-        rightShooter.set();
+        if(joystick.getRawAxis(3) > 0.2) {
+            shooter.go(joystick.getRawAxis(3));
+        } else {
+            shooter.stop();
+        }
 
         if(joystick.getRawButton(5)) {
             drivetrain.arcadeDrive(-joystick.getRawAxis(1), joystick.getRawAxis(4));
@@ -93,5 +95,14 @@ public class Robot extends TimedRobot {
         backRightMotor.follow(frontRightMotor);
 
         drivetrain = new Drivetrain(frontLeftMotor, frontRightMotor, new AHRS(Port.kMXP));
+    }
+
+    private void initializeShooter() {
+        TalonSRX leftShooter = new TalonSRX(5);
+        TalonSRX rightShooter = new TalonSRX(6);
+
+        rightShooter.follow(leftShooter);
+
+        shooter = new Shooter(leftShooter);
     }
 }
