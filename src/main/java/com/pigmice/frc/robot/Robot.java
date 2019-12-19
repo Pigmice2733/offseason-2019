@@ -10,7 +10,7 @@ package com.pigmice.frc.robot;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
-import com.pigmice.frc.lib.utils.Utils;
+import com.pigmice.frc.lib.controls.Joysticks;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Shooter;
 import com.revrobotics.CANSparkMax;
@@ -65,20 +65,8 @@ public class Robot extends TimedRobot {
             shooter.stop();
         }
 
-        double forwardSpeed = -joystick.getRawAxis(1);
-        double turnSpeed = joystick.getRawAxis(4);
-
-        if(forwardSpeed <= 0.1 && forwardSpeed >= -0.1) {
-            forwardSpeed = 0;
-        } else {
-            forwardSpeed = Utils.lerp(Math.abs(forwardSpeed), 0.1, 1, 0, 1) * Math.signum(forwardSpeed);
-        }
-
-        if (turnSpeed <= 0.1 && turnSpeed >= -0.1) {
-            turnSpeed = 0;
-        } else {
-            turnSpeed = Utils.lerp(Math.abs(turnSpeed), 0.1, 1, 0, 1) * Math.signum(turnSpeed);
-        }
+        double forwardSpeed = Joysticks.deadzone(-joystick.getRawAxis(1), 0.1);
+        double turnSpeed = Joysticks.deadzone(joystick.getRawAxis(4), 0.1);
 
         if(joystick.getRawButton(5)) {
             drivetrain.arcadeDrive(forwardSpeed, turnSpeed);

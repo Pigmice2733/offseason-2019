@@ -6,7 +6,8 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 
 public class Shooter {
-    private static final double feedRate = 0.5;
+    private static final double feedRate = -0.3;
+    private static final double holdRate = 0.1;
     private static final double feederActivation = 0.8;
     TalonSRX flywheelMotor;
     VictorSPX feederMotor;
@@ -39,7 +40,7 @@ public class Shooter {
         if (currentVoltage > feederActivation) {
             feederMotor.set(ControlMode.PercentOutput, feedRate);
         } else {
-            feederMotor.set(ControlMode.PercentOutput, 0);
+            feederMotor.set(ControlMode.PercentOutput, holdRate);
         }
 
         flywheelMotor.set(ControlMode.PercentOutput, currentVoltage);
