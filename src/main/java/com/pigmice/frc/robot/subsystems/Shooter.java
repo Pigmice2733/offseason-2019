@@ -2,17 +2,23 @@ package com.pigmice.frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
 
 public class Shooter {
-    TalonSRX motor;
+    private static final double feedRate = 0.5;
+    private static final double feederActivation = 0.8;
+    TalonSRX flywheelMotor;
+    VictorSPX feederMotor;
 
     final double maxVoltage = 0.95;
     double currentVoltage = 0;
 
     double rampRate = (1.0 / (50 * 5));
 
-    public Shooter(TalonSRX motor) {
-        this.motor = motor;
+    public Shooter(TalonSRX flywheelMotor, VictorSPX feederMotor) {
+        this.flywheelMotor = flywheelMotor;
+        this.feederMotor = feederMotor;
     }
 
     public void go(double speed) {
@@ -30,6 +36,12 @@ public class Shooter {
             currentVoltage -= rampRate;
         }
 
-        motor.set(ControlMode.PercentOutput, currentVoltage);
+        if (currentVoltage > feederActivation) {
+            feederMotor.set(ControlMode.PercentOutput, feedRate);
+        } else {
+            feederMotor.set(ControlMode.PercentOutput, 0);
+        }
+
+        flywheelMotor.set(ControlMode.PercentOutput, currentVoltage);
     }
 }

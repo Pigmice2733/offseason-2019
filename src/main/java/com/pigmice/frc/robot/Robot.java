@@ -8,13 +8,14 @@
 package com.pigmice.frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
+import com.pigmice.frc.lib.utils.Utils;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Shooter;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -37,10 +38,8 @@ public class Robot extends TimedRobot {
         inititalizeDrivetrain(3, 4, 1, 2);
         initializeShooter();
 
-        CameraServer server = CameraServer.getInstance();
-        server.startAutomaticCapture("Driver Cam", 0);
-
-        Vision.start();
+        Vision.startStreaming();
+        Vision.startProcessing();
     }
 
     @Override
@@ -50,8 +49,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
-
+        System.out.println(Vision.targetVisible());
     }
+
     @Override
     public void teleopInit() {
         drivetrain.stop();
@@ -65,10 +65,25 @@ public class Robot extends TimedRobot {
             shooter.stop();
         }
 
-        if(joystick.getRawButton(5)) {
-            drivetrain.arcadeDrive(-joystick.getRawAxis(1), joystick.getRawAxis(4));
+        double forwardSpeed = -joystick.getRawAxis(1);
+        double turnSpeed = joystick.getRawAxis(4);
+
+        if(forwardSpeed <= 0.1 && forwardSpeed >= -0.1) {
+            forwardSpeed = 0;
         } else {
-            drivetrain.arcadeDrive(-0.1 * joystick.getRawAxis(1), 0.1 * joystick.getRawAxis(4));
+            forwardSpeed = Utils.lerp(Math.abs(forwardSpeed), 0.1, 1, 0, 1) * Math.signum(forwardSpeed);
+        }
+
+        if (turnSpeed <= 0.1 && turnSpeed >= -0.1) {
+            turnSpeed = 0;
+        } else {
+            turnSpeed = Utils.lerp(Math.abs(turnSpeed), 0.1, 1, 0, 1) * Math.signum(turnSpeed);
+        }
+
+        if(joystick.getRawButton(5)) {
+            drivetrain.arcadeDrive(forwardSpeed, turnSpeed);
+        } else {
+            drivetrain.arcadeDrive(0.1 * forwardSpeed, 0.1 * turnSpeed);
         }
     }
 
@@ -100,9 +115,10 @@ public class Robot extends TimedRobot {
     private void initializeShooter() {
         TalonSRX leftShooter = new TalonSRX(5);
         TalonSRX rightShooter = new TalonSRX(6);
+        VictorSPX feeder = new VictorSPX(7);
 
         rightShooter.follow(leftShooter);
 
-        shooter = new Shooter(leftShooter);
+        shooter = new Shooter(leftShooter, feeder);
     }
 }
